@@ -21,6 +21,8 @@ def parser() -> argparse.ArgumentParser:
     search.add_argument("--limit", type=int, default=10)
     jobs = sub.add_parser("jobs")
     jobs.add_argument("--limit", type=int, default=100)
+    recover = sub.add_parser("recover", help="Mark orphaned jobs interrupted; all other instances must be closed")
+    recover.add_argument("--confirm-inactive", action="store_true", required=False)
     sub.add_parser("demo", help="Generate an offline WAV test file")
     dl = sub.add_parser("download", help="Only explicitly authorized direct audio URLs")
     dl.add_argument("url")
@@ -63,6 +65,9 @@ def run(argv: list[str] | None = None) -> int:
                     "output_dir": str(cfg.output_dir), "provider_count": len(api.providers())}, args.json)
         elif args.command == "providers":
             render(api.providers(), args.json)
+        elif args.command == "recover":
+            count = api.recover_interrupted(confirm_no_active_workers=args.confirm_inactive)
+            render({"marked_interrupted": count}, args.json)
         elif args.command == "search":
             render([x.to_dict() for x in asyncio.run(api.search(args.query, args.limit))], args.json)
         elif args.command == "jobs":

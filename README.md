@@ -13,6 +13,7 @@ lucida providers
 lucida search "artist title"
 lucida demo
 lucida --json jobs
+lucida recover --confirm-inactive  # only after all instances have stopped
 lucida download https://your-trusted-host.example/audio.wav --allow-host your-trusted-host.example
 ```
 
