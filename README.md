@@ -1,6 +1,6 @@
 # Lucida CLI (0.1.0 development preview)
 
-Terminal frontend of [Lucida API](https://github.com/jerrecode/lucida-api). Linux and Windows targets; Windows runtime has not yet been independently tested. Does **not** advertise full lucida.to support.
+Terminal frontend of [Lucida API](https://github.com/jerrecode/lucida-api). Linux and Windows targets; command tests and wheel builds pass Ubuntu/Windows CI. Real-user shell and installer verification remain pending. Does **not** advertise full lucida.to support.
 
 Install from repository: on Linux `./install.sh`; on Windows PowerShell `./install.ps1`. These create an isolated `.venv` and fetch compatible API source. For local sibling checkouts set `LUCIDA_API_SOURCE=../lucida-api` first. Manual alternative: create and activate a venv, install API from source then `python -m pip install -e .`.
 
