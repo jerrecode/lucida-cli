@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lucida-cli-app"
+version = "0.1.0"
+description = "CLI for the Lucida provider-driven media toolkit"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+dependencies = ["lucida-api-core>=0.1.0,<0.2.0"]
+
+[project.scripts]
+lucida = "lucida_cli.main:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
