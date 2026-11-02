@@ -16,6 +16,9 @@ def parser() -> argparse.ArgumentParser:
     sub.add_parser("version")
     sub.add_parser("doctor")
     sub.add_parser("providers")
+    search = sub.add_parser("search", help="MusicBrainz metadata search (no audio acquisition)")
+    search.add_argument("query")
+    search.add_argument("--limit", type=int, default=10)
     jobs = sub.add_parser("jobs")
     jobs.add_argument("--limit", type=int, default=100)
     sub.add_parser("demo", help="Generate an offline WAV test file")
@@ -60,6 +63,8 @@ def run(argv: list[str] | None = None) -> int:
                     "output_dir": str(cfg.output_dir), "provider_count": len(api.providers())}, args.json)
         elif args.command == "providers":
             render(api.providers(), args.json)
+        elif args.command == "search":
+            render([x.to_dict() for x in asyncio.run(api.search(args.query, args.limit))], args.json)
         elif args.command == "jobs":
             render([j.to_dict() for j in api.jobs(args.limit)], args.json)
         elif args.command in ("demo", "download"):

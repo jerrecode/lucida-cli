@@ -10,12 +10,13 @@ Available operations:
 lucida version
 lucida doctor
 lucida providers
+lucida search "artist title"
 lucida demo
 lucida --json jobs
 lucida download https://your-trusted-host.example/audio.wav --allow-host your-trusted-host.example
 ```
 
-Only URLs that you are authorized to access may be used. No website-specific bypasses. For a controlled **local** HTTP test server add `--local-test`. Standard output carries command results; failures are reported on standard error. `--json` is a global flag placed before the command. Each failed job is journaled; no restart/resume command exists yet.
+Search uses MusicBrainz metadata only and returns no audio or download authorization. Only URLs that you are authorized to access may be used. No website-specific bypasses. For a controlled **local** HTTP test server add `--local-test`. Standard output carries command results; failures are reported on standard error. `--json` is a global flag placed before the command. Each failed job is journaled; no restart/resume command exists yet.
 
 Tests: `PYTHONPATH=../lucida-api/src:src python -m pytest -q tests`.
 
