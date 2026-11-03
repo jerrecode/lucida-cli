@@ -50,3 +50,19 @@ def test_retry_cli_failed_job(tmp_path, monkeypatch, capsys):
     assert run(["--json", "retry", "previous"]) == 0
     assert '"state": "completed"' in capsys.readouterr().out
     assert (tmp_path / "music" / "retry.wav").is_file()
+
+
+def test_resume_cli_missing_job(tmp_path, monkeypatch, capsys):
+    monkeypatch.setenv("LUCIDA_HOME", str(tmp_path / "state"))
+    monkeypatch.setenv("LUCIDA_OUTPUT_DIR", str(tmp_path / "music"))
+    assert run(["--json", "resume", "does-not-exist"]) == 2
+    assert "Unknown job ID" in capsys.readouterr().err
+
+
+def test_sha256_cli_constraint(tmp_path, monkeypatch, capsys):
+    monkeypatch.setenv("LUCIDA_HOME", str(tmp_path / "state"))
+    monkeypatch.setenv("LUCIDA_OUTPUT_DIR", str(tmp_path / "music"))
+    assert run(["--json", "download", "https://example.com/song.mp3",
+                "--allow-host", "example.com", "--sha256", "invalid"]) == 2
+    assert "64 hexadecimal" in capsys.readouterr().err
+    assert not (tmp_path / "music" / "download.audio").exists()

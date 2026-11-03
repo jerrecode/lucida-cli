@@ -25,8 +25,14 @@ def parser() -> argparse.ArgumentParser:
     jobs.add_argument("--limit", type=int, default=100)
     recover = sub.add_parser("recover", help="Mark orphaned jobs interrupted; all other instances must be closed")
     recover.add_argument("--confirm-inactive", action="store_true", required=False)
+    resume = sub.add_parser("resume", help="Resume an ETag-validated partial HTTP download")
+    resume.add_argument("job_id")
+    resume.add_argument("--sha256", metavar="HEX", help="Verify expected complete-file SHA-256")
+    resume.add_argument("--allow-host", action="append", default=[], metavar="HOST")
+    resume.add_argument("--local-test", action="store_true")
     retry = sub.add_parser("retry", help="Retry a failed/interrupted job from scratch")
     retry.add_argument("job_id")
+    retry.add_argument("--sha256", metavar="HEX", help="Verify expected complete-file SHA-256")
     retry.add_argument("--allow-host", action="append", default=[], metavar="HOST")
     retry.add_argument("--local-test", action="store_true")
     batch = sub.add_parser("batch", help="Read up to 1000 authorized URLs, one per line")
@@ -38,6 +44,7 @@ def parser() -> argparse.ArgumentParser:
     dl = sub.add_parser("download", help="Only explicitly authorized direct audio URLs")
     dl.add_argument("url")
     dl.add_argument("--filename")
+    dl.add_argument("--sha256", metavar="HEX", help="Verify expected complete-file SHA-256")
     dl.add_argument("--allow-host", action="append", default=[], metavar="HOST",
                     help="Explicitly trust this host; use only for authorized sources")
     dl.add_argument("--local-test", action="store_true", help="Allow HTTP/private IPs for isolated testing")
@@ -85,7 +92,10 @@ def run(argv: list[str] | None = None) -> int:
         elif args.command == "jobs":
             render([j.to_dict() for j in api.jobs(args.limit)], args.json)
         elif args.command == "retry":
-            result = asyncio.run(api.retry(args.job_id))
+            result = asyncio.run(api.retry(args.job_id, expected_sha256=args.sha256))
+            render(result.to_dict(), args.json)
+        elif args.command == "resume":
+            result = asyncio.run(api.resume(args.job_id, expected_sha256=args.sha256))
             render(result.to_dict(), args.json)
         elif args.command == "batch":
             if not args.source_file.is_file():
@@ -130,7 +140,8 @@ def run(argv: list[str] | None = None) -> int:
                     print(f"\r{job.state} {job.transferred} bytes", file=sys.stderr, end="", flush=True)
             source = "sample://tone" if args.command == "demo" else args.url
             filename = None if args.command == "demo" else args.filename
-            result = asyncio.run(api.acquire(source, filename, progress))
+            result = asyncio.run(api.acquire(source, filename, progress,
+                                             expected_sha256=getattr(args, "sha256", None)))
             if not args.json and sys.stderr.isatty():
                 print(file=sys.stderr)
             render(result.to_dict(), args.json)
